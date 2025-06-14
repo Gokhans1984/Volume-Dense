@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kargo Kar-Zarar Hesaplama</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#f9f9f9; margin: 20px; color: #333; }
+  h1 { color: #0056b3; margin-bottom: 10px; }
+  .currency-buttons button {
+    background: #eee; border: 1px solid #ccc; padding: 5px 10px; margin-right: 5px;
+    cursor: pointer; border-radius: 4px; font-weight: bold; color:#333;
+  }
+  .currency-buttons button.active {
+    background: #0056b3; color: white; border-color: #004080;
+  }
+  .prices {
+    display: flex; gap: 10px; margin: 10px 0 15px;
+  }
+  .prices label {
+    flex: 1;
+  }
+  .prices input {
+    width: 100%; padding: 6px; font-size: 14px;
+    border: 1px solid #ccc; border-radius: 4px;
+  }
+  button.add-btn {
+    background: #28a745; border: none; color: white; padding: 6px 10px; border-radius: 4px;
+    cursor: pointer; font-size: 14px; margin-top: 10px;
+  }
+  button.add-btn:hover { background: #218838; }
+  .customer {
+    background: white; border: 1px solid #ccc; border-radius: 6px; padding: 15px; margin-bottom: 20px;
+  }
+  .customer h2 {
+    margin-top: 0; color: #007bff; font-size: 18px;
+  }
+  .parts {
+    margin-top: 10px;
+  }
+  .part-row {
+    display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .part-row > div {
+    flex: 1 1 120px;
+  }
+  .part-row label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+  .part-row input {
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  #results {
+    background: white; border: 1px solid #ccc; border-radius: 6px; padding: 15px; margin-top: 15px;
+  }
+  table.density-table {
+    border-collapse: collapse; width: 100%; margin-top: 25px;
+  }
+  table.density-table th, table.density-table td {
+    border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 14px;
+  }
+  table.density-table th {
+    background-color: #0056b3; color: white;
+  }
+</style>
+</head>
+<body>
+
+<h1>Kargo Kar/Zarar Hesaplayıcı</h1>
+
+<div class="currency-buttons">
+  <button data-currency="USD" class="active">USD</button>
+  <button data-currency="EUR">EUR</button>
+  <button data-currency="CNY">CNY</button>
+  <button data-currency="TRY">TRY</button>
+  <button data-currency="HKD">HKD</button>
+</div>
+
+<div class="prices">
+  <label>Alış Fiyatı ($/kg):
+    <input type="number" id="navlunFiyat" step="0.01" min="0" placeholder="Alış fiyatı" />
+  </label>
+  <label>Satış Fiyatı ($/kg):
+    <input type="number" id="satisFiyat" step="0.01" min="0" placeholder="Satış fiyatı" />
+  </label>
+</div>
+
+<div id="customers-container">
+  <div class="customer" data-customer-index="1">
+    <h2>Müşteri 1</h2>
+    <div class="parts" data-parts-container>
+      <div class="part-row" data-part-index="1">
+        <div>
+          <label>Parça Adeti</label>
+          <input type="number" min="1" value="1" class="parca-adet" />
+        </div>
+        <div>
+          <label>En (cm)</label>
+          <input type="number" min="0" step="0.01" class="en" />
+        </div>
+        <div>
+          <label>Boy (cm)</label>
+          <input type="number" min="0" step="0.01" class="boy" />
+        </div>
+        <div>
+          <label>Yükseklik (cm)</label>
+          <input type="number" min="0" step="0.01" class="yukseklik" />
+        </div>
+        <div>
+          <label>Parça Başına Ağırlık (kg)</label>
+          <input type="number" min="0" step="0.01" class="parca-agirlik" />
+        </div>
+      </div>
+    </div>
+    <button class="add-btn add-part-btn">+ Parça Ekle</button>
+  </div>
+</div>
+
+<button class="add-btn" id="add-customer-btn">+ Müşteri Ekle</button>
+
+<button class="add-btn" id="calculate-btn" style="background:#007bff; margin-top:20px;">Hesapla</button>
+
+<div id="results"></div>
+
+<table class="density-table">
+  <thead>
+    <tr>
+      <th>Yoğunluk Oranı</th>
+      <th>Density Faktör (kg/m³)</th>
+      <th>Kargo Tipi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>1:1</td><td>1000</td><td>Dense Kargo</td></tr>
+    <tr><td>1:2</td><td>500</td><td>Dense Kargo</td></tr>
+    <tr><td>1:3</td><td>333</td><td>Dense Kargo</td></tr>
+    <tr><td>1:4</td><td>250</td><td>Dense Kargo</td></tr>
+    <tr><td>1:5</td><td>200</td><td>Dense Kargo</td></tr>
+    <tr><td>1:6 (1'e 1)</td><td>167</td><td>Dense Kargo</td></tr>
+    <tr><td>1:7</td><td>143</td><td>Volumetrik Kargo</td></tr>
+    <tr><td>1:8</td><td>125</td><td>Volumetrik Kargo</td></tr>
+    <tr><td>1:9</td><td>111</td><td>Volumetrik Kargo</td></tr>
+    <tr><td>1:10</td><td>100</td><td>Volumetrik Kargo</td></tr>
+    <tr><td>1:11</td><td>91</td><td>Volumetrik Kargo</td></tr>
+    <tr><td>1:12</td><td>83</td><td>Volumetrik Kargo Sınırı</td></tr>
+  </tbody>
+</table>
+
+<script>
+  const currencyButtons = document.querySelectorAll('.currency-buttons button');
+  let selectedCurrency = 'USD';
+  currencyButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currencyButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedCurrency = btn.getAttribute('data-currency');
+      updateResults();
+    });
+  });
+
+  const customersContainer = document.getElementById('customers-container');
+  const addCustomerBtn = document.getElementById('add-customer-btn');
+  const calculateBtn = document.getElementById('calculate-btn');
+  const resultsDiv = document.getElementById('results');
+  const navlunInput = document.getElementById('navlunFiyat');
+  const satisInput = document.getElementById('satisFiyat');
+
+  let customerCount = 1;
+
+  addCustomerBtn.addEventListener('click', () => {
+    customerCount++;
+    const newCustomer = document.createElement('div');
+    newCustomer.classList.add('customer');
+    newCustomer.dataset.customerIndex = customerCount;
+    newCustomer.innerHTML = `
+      <h2>Müşteri ${customerCount}</h2>
+      <div class="parts" data-parts-container>
+        <div class="part-row" data-part-index="1">
+          <div>
+            <label>Parça Adeti</label>
+            <input type="number" min="1" value="1" class="parca-adet" />
+          </div>
+          <div>
+            <label>En (cm)</label>
+            <input type="number" min="0" step="0.01" class="en" />
+          </div>
+          <div>
+            <label>Boy (cm)</label>
+            <input type="number" min="0" step="0.01" class="boy" />
+          </div>
+          <div>
+            <label>Yükseklik (cm)</label>
+            <input type="number" min="0" step="0.01" class="yukseklik" />
+          </div>
+          <div>
+            <label>Parça Başına Ağırlık (kg)</label>
+            <input type="number" min="0" step="0.01" class="parca-agirlik" />
+          </div>
+        </div>
+      </div>
+      <button class="add-btn add-part-btn">+ Parça Ekle</button>
+    `;
+    customersContainer.appendChild(newCustomer);
+  });
+
+  customersContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('add-part-btn')) {
+      const customerDiv = e.target.closest('.customer');
+      const partsContainer = customerDiv.querySelector('[data-parts-container]');
+      const lastPartIndex = partsContainer.querySelectorAll('.part-row').length;
+      const newPartIndex = lastPartIndex + 1;
+      const partRow = document.createElement('div');
+      partRow.classList.add('part-row');
+      partRow.dataset.partIndex = newPartIndex;
+      partRow.innerHTML = `
+        <div>
+          <label>Parça Adeti</label>
+          <input type="number" min="1" value="1" class="parca-adet" />
+        </div>
+        <div>
+          <label>En (cm)</label>
+          <input type="number" min="0" step="0.01" class="en" />
+        </div>
+        <div>
+          <label>Boy (cm)</label>
+          <input type="number" min="0" step="0.01" class="boy" />
+        </div>
+        <div>
+          <label>Yükseklik (cm)</label>
+          <input type="number" min="0" step="0.01" class="yukseklik" />
+        </div>
+        <div>
+          <label>Parça Başına Ağırlık (kg)</label>
+          <input type="number" min="0" step="0.01" class="parca-agirlik" />
+        </div>
+      `;
+      partsContainer.appendChild(partRow);
+    }
+  });
+
+  function updateResults() {
+    let toplamNavlun = 0;
+    let toplamSatisGeliri = 0;
+    let toplamParcaSayisi = 0;
+    let toplamGercekAgirlik = 0;
+    let toplamVolumetrikAgirlik = 0;
+
+    const navlunFiyat = parseFloat(navlunInput.value) || 0;
+    const satisFiyat = parseFloat(satisInput.value) || 0;
+
+    const customers = document.querySelectorAll('.customer');
+    customers.forEach(cust => {
+      const parts = cust.querySelectorAll('.part-row');
+      parts.forEach(part => {
+        const adet = parseInt(part.querySelector('.parca-adet').value) || 0;
+        const en = parseFloat(part.querySelector('.en').value) || 0;
+        const boy = parseFloat(part.querySelector('.boy').value) || 0;
+        const yukseklik = parseFloat(part.querySelector('.yukseklik').value) || 0;
+        const parcaAgirlik = parseFloat(part.querySelector('.parca-agirlik').value) || 0;
+
+        toplamParcaSayisi += adet;
+
+        const hacimM3 = (en / 100) * (boy / 100) * (yukseklik / 100);
+        const volumetrikAgirlik = hacimM3 * 167; // 1m3 = 167 kg densite (Örnek, gerektiğinde değiştirilebilir)
+
+        toplamGercekAgirlik += parcaAgirlik * adet;
+        toplamVolumetrikAgirlik += volumetrikAgirlik * adet;
+      });
+    });
+
+    // Eklenebilir Dense Ağırlık = volumetrikAgirlik - gerçekAgirlik, pozitif ise yaz
+    let eklenebilirDense = toplamVolumetrikAgirlik - toplamGercekAgirlik;
+    if (eklenebilirDense < 0) eklenebilirDense = 0;
+
+    toplamNavlun = toplamGercekAgirlik * navlunFiyat;
+    toplamSatisGeliri = toplamGercekAgirlik * satisFiyat;
+    const toplamKar = toplamSatisGeliri - toplamNavlun;
+
+    resultsDiv.innerHTML = `
+      <div><strong>Toplam Parça Sayısı:</strong> ${toplamParcaSayisi}</div>
+      <div><strong>Toplam Gerçek Ağırlık (kg):</strong> ${toplamGercekAgirlik.toFixed(2)}</div>
+      <div><strong>Toplam Volumetrik Ağırlık (kg):</strong> ${toplamVolumetrikAgirlik.toFixed(2)}</div>
+      <div><strong>Eklenebilir Dense Ağırlık (kg):</strong> ${eklenebilirDense.toFixed(2)}</div>
+      <div><strong>Toplam Navlun (${selectedCurrency}):</strong> ${toplamNavlun.toFixed(2)}</div>
+      <div><strong>Toplam Satış Geliri (${selectedCurrency}):</strong> ${toplamSatisGeliri.toFixed(2)}</div>
+      <div><strong>Toplam Kar (${selectedCurrency}):</strong> ${toplamKar.toFixed(2)}</div>
+    `;
+  }
+
+  calculateBtn.addEventListener('click', updateResults);
+</script>
+
+</body>
+</html>
