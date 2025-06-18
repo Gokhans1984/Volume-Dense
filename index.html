@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volume/Dense Kargo Optimizasyon Paneli</title>
+  <style>
+    :root {
+      --primary: #2c3e50; /* Koyu Mavi/Gri */
+      --secondary: #3498db; /* Açık Mavi */
+      --success: #27ae60; /* Yeşil */
+      --danger: #e74c3c; /* Kırmızı */
+      --warning: #f39c12; /* Turuncu */
+      --light: #ecf0f1; /* Açık Gri */
+      --dark: #34445e; /* Daha Koyu Mavi/Gri */
+      --border-radius: 4px; /* Çok hafif yuvarlak köşeler */
+      --shadow: 0 2px 5px rgba(0,0,0,0.08); /* Çok daha hafif gölge */
+      --input-border: #dcdfe6;
+      --input-focus-border: #409eff;
+      --table-header-bg: #4a69bd;
+      --table-row-hover-bg: #f7f7f7; /* Daha hafif hover */
+    }
+
+    body {
+      font-family: 'Open Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafd; /* Daha açık arka plan */
+      color: #333;
+      line-height: 1.4; /* Daha kompakt line-height */
+      padding: 15px; /* Padding daha da azaltıldı */
+      margin: 0;
+      font-size: 0.9em; /* Genel font boyutu küçültüldü */
+    }
+
+    .container {
+      max-width: 1000px; /* Konteyner genişliği daha da azaltıldı */
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px; /* Gap azaltıldı */
+    }
+
+    h1, h2, h3, h4 {
+      color: var(--primary);
+      margin-top: 0;
+      margin-bottom: 10px; /* Başlık alt boşluğu azaltıldı */
+      font-weight: 600;
+    }
+
+    h1 {
+      border-bottom: 1px solid var(--secondary); /* Daha ince alt çizgi */
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px; /* İkon boşluğu azaltıldı */
+      font-size: 1.6em; /* Başlık boyutu azaltıldı */
+    }
+
+    h2 {
+        font-size: 1.3em; /* Başlık boyutu azaltıldı */
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--light);
+    }
+
+    h3 {
+        font-size: 1.1em; /* Başlık boyutu azaltıldı */
+    }
+    h4 {
+        font-size: 1em; /* Alt başlık boyutu azaltıldı */
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 15px 20px; /* İç boşluklar azaltıldı */
+      margin-bottom: 0;
+      transition: transform 0.1s ease-in-out; /* Daha hızlı transition */
+    }
+
+    .card:hover {
+        transform: translateY(-1px); /* Hover efekti daha da azaltıldı */
+        box-shadow: 0 3px 6px rgba(0,0,0,0.08); /* Hover gölgesi ayarlandı */
+    }
+
+    .summary-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px; /* Daha küçük boşluk */
+      margin-top: 10px;
+    }
+
+    .summary-item {
+      background: linear-gradient(135deg, #ffffff, var(--light)); /* Daha hafif degrade */
+      padding: 10px 12px; /* İç boşluklar azaltıldı */
+      border-radius: var(--border-radius);
+      border: 1px solid #e9eff4; /* Daha hafif kenarlık */
+      flex-grow: 1;
+      min-width: 120px; /* Minimum genişlik azaltıldı */
+      text-align: center;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); /* Hafif iç gölge */
+    }
+
+    .summary-item h3 {
+      margin-top: 0;
+      font-size: 0.75em; /* Daha küçük font */
+      color: var(--dark);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+
+    .summary-value {
+      font-size: 1.4em; /* Daha küçük değer fontu */
+      font-weight: 700; /* Font kalınlığı ayarlandı */
+      margin: 3px 0 0;
+      color: var(--secondary);
+    }
+
+    .profit {
+      color: var(--success);
+    }
+
+    .loss {
+      color: var(--danger);
+    }
+
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px; /* Çok daha küçük boşluk */
+      margin-bottom: 8px;
+    }
+
+    .input-group {
+      flex: 1;
+      min-width: 100px; /* Minimum genişlik küçültüldü */
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 2px; /* Daha az boşluk */
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.75em; /* Font boyutu küçültüldü */
+    }
+
+    .input-group input, .input-group select {
+      width: calc(100% - 8px); /* Padding'i hesaba kat */
+      padding: 4px; /* İç boşluklar çok azaltıldı */
+      border: 1px solid var(--input-border);
+      border-radius: var(--border-radius);
+      font-size: 0.8em; /* Font boyutu küçültüldü */
+      transition: border-color 0.1s, box-shadow 0.1s;
+    }
+
+    .input-group input:focus, .input-group select:focus {
+        border-color: var(--input-focus-border);
+        box-shadow: 0 0 0 1px rgba(52, 152, 219, 0.1); /* Hafif odak gölgesi */
+        outline: none;
+    }
+
+    .btn {
+      padding: 7px 12px; /* Buton boyutları küçültüldü */
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 600; /* Font kalınlığı ayarlandı */
+      display: inline-flex;
+      align-items: center;
+      gap: 4px; /* İkon boşluğu küçültüldü */
+      transition: all 0.1s ease-in-out;
+      font-size: 0.85em; /* Font boyutu küçültüldü */
+    }
+
+    .btn-primary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 4px 8px; /* Küçük butonlar daha da küçültüldü */
+      font-size: 0.75em;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-0.5px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    /* Tablo Stilleri */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0; /* Margin azaltıldı */
+      box-shadow: var(--shadow);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+
+    th {
+      background: var(--table-header-bg);
+      color: white;
+      padding: 8px; /* Tablo başlık padding'i azaltıldı */
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.85em; /* Tablo başlık fontu küçültüldü */
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    td {
+      padding: 6px 8px; /* Tablo hücre padding'i azaltıldı */
+      border-bottom: 1px solid #eef1f5; /* Daha hafif border */
+      font-size: 0.8em; /* Tablo hücre fontu küçültüldü */
+      color: #555;
+    }
+
+    tr:nth-child(even) {
+      background: #fdfdfe;
+    }
+
+    tr:nth-child(odd) {
+      background: #ffffff;
+    }
+
+    tr:hover {
+        background: var(--table-row-hover-bg);
+        transition: background 0.1s ease-in-out;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    .optimization-result {
+      margin-top: 15px;
+      padding: 12px;
+      background: #eef7ff; /* Daha açık arka plan */
+      border-radius: var(--border-radius);
+      border-left: 3px solid var(--secondary);
+      box-shadow: inset 0 0 4px rgba(52, 152, 219, 0.08);
+      font-size: 0.85em; /* Font boyutu küçültüldü */
+    }
+
+    .optimization-result h3 {
+        color: var(--secondary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 1em; /* Başlık fontu ayarlandı */
+    }
+
+    .price-suggestion {
+      background: #effff5; /* Daha açık arka plan */
+      padding: 10px;
+      border-radius: var(--border-radius);
+      margin-top: 10px;
+      border-left: 3px solid var(--success);
+      color: #2c5f3e;
+      line-height: 1.5;
+      font-size: 0.8em; /* Font boyutu küçültüldü */
+    }
+    .price-suggestion strong { color: var(--success); }
+    .price-suggestion p, .price-suggestion ul { margin-bottom: 3px; }
+    .price-suggestion ul { padding-left: 15px; }
+
+    .piece-item {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: var(--border-radius);
+      margin-bottom: 8px;
+      position: relative;
+      border: 1px solid #eef1f5;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .remove-piece {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 18px; /* Daha küçük */
+      height: 18px; /* Daha küçük */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 9px; /* Daha küçük font */
+      transition: background 0.1s, transform 0.1s;
+    }
+
+    .remove-piece:hover {
+        background: #c0392b;
+        transform: scale(1.1);
+    }
+
+    .needed-cargo {
+      background: #fffdf2; /* Daha açık arka plan */
+      padding: 10px;
+      border-radius: var(--border-radius);
+      margin-top: 10px;
+      border-left: 3px solid var(--warning);
+      color: #8b6e2f;
+      line-height: 1.5;
+      font-size: 0.8em; /* Font boyutu küçültüldü */
+    }
+    .needed-cargo strong { color: var(--warning); }
+    .needed-cargo p, .needed-cargo ul { margin-bottom: 3px; }
+    .needed-cargo ul { padding-left: 15px; }
+
+    /* İkonlar için stil */
+    .fas {
+        margin-right: 3px; /* Margin azaltıldı */
+    }
+
+    .total-profit.profit {
+        color: var(--success);
+        font-weight: 700;
+    }
+
+    .total-profit.loss {
+        color: var(--danger);
+        font-weight: 700;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .summary-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Daha küçük min-width */
+      }
+      body {
+        padding: 10px;
+        font-size: 0.85em;
+      }
+      .card {
+        padding: 12px 15px;
+      }
+      h1 {
+        font-size: 1.4em;
+      }
+      h2 {
+        font-size: 1.2em;
+      }
+      h3 {
+        font-size: 1em;
+      }
+      h4 {
+        font-size: 0.9em;
+      }
+      .input-group label {
+        font-size: 0.7em;
+      }
+      .input-group input, .input-group select {
+        font-size: 0.75em;
+      }
+      .btn {
+        font-size: 0.8em;
+      }
+      .btn-sm {
+        font-size: 0.7em;
+      }
+      th {
+        font-size: 0.8em;
+      }
+      td {
+        font-size: 0.75em;
+      }
+      .optimization-result, .price-suggestion, .needed-cargo {
+        font-size: 0.8em;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .summary-grid {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .summary-item {
+        min-width: unset;
+      }
+
+      .flex-row {
+        flex-direction: column;
+      }
+      .input-group {
+        min-width: 100%;
+      }
+      table, .card {
+        box-shadow: none;
+      }
+      .container {
+        gap: 8px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-boxes"></i> Volume/Dense Kargo Optimizasyon Paneli (1 AWB)</h1>
+
+    <div class="card">
+      <h2><i class="fas fa-chart-pie"></i> Konsolide Özet</h2>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <h3><i class="fas fa-weight"></i> Toplam Ağırlık</h3>
+          <p class="summary-value" id="total-weight">0 kg</p>
+        </div>
+        <div class="summary-item">
+          <h3><i class="fas fa-cube"></i> Hacimsel Ağırlık</h3>
+          <p class="summary-value" id="total-volumetric">0 kg</p>
+        </div>
+        <div class="summary-item">
+          <h3><i class="fas fa-money-bill-wave"></i> Ücretlendirilebilir Ağırlık</h3>
+          <p class="summary-value" id="total-chargeable">0 kg</p>
+        </div>
+        <div class="summary-item">
+          <h3><i class="fas fa-dollar-sign"></i> Toplam Alış</h3>
+          <p class="summary-value" id="total-purchase">0</p>
+        </div>
+        <div class="summary-item">
+          <h3><i class="fas fa-hand-holding-usd"></i> Toplam Satış</h3>
+          <p class="summary-value" id="total-sale">0</p>
+        </div>
+        <div class="summary-item">
+          <h3><i class="fas fa-sack-dollar"></i> Net Kar</h3>
+          <p class="summary-value" id="total-profit">0</p>
+        </div>
+      </div>
+
+      <div class="optimization-result" id="optimization-result">
+        <h3><i class="fas fa-lightbulb"></i> Optimizasyon Önerisi</h3>
+        <p>Müşteri ekleyerek optimizasyon analizini görüntüleyin</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-cog"></i> Global Ayarlar</h2>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px;">
+        <div class="flex-row" style="flex-grow: 1; margin-bottom: 0;">
+          <div class="input-group">
+            <label id="global-purchase-price-label">Alış Fiyatı (kg)</label>
+            <input type="number" step="0.01" id="global-purchase-price" value="" tabindex="1">
+          </div>
+          <div class="input-group">
+            <label><i class="fas fa-percentage"></i> Min Kar Marjı (%)</label>
+            <input type="number" step="0.1" id="min-profit-margin" value="" tabindex="2">
+          </div>
+          <div class="input-group">
+            <label><i class="fas fa-percent"></i> Max İndirim (%)</label>
+            <input type="number" step="0.1" id="max-discount" value="" tabindex="3">
+          </div>
+        </div>
+        <button class="btn btn-success" id="apply-settings-btn" style="margin-left: 10px; height: fit-content;" tabindex="4"><i class="fas fa-sync-alt"></i> Uygula</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2><i class="fas fa-users"></i> Müşteriler</h2>
+        <button class="btn btn-primary" id="add-customer-btn" tabindex="5"><i class="fas fa-plus"></i> Müşteri Ekle</button>
+      </div>
+      <div id="customers-container"></div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-info-circle"></i> Hesaplama Mantığı</h2>
+      <p>Bu panel, 1 AWB altında volume/dense kargo optimizasyonu yapar:</p>
+      <ul>
+        <li>Hacimsel ağırlık = (en × boy × yükseklik × **Parça Sayısı**) / 6000 (hava kargo)</li>
+        <li>Gerçek ağırlık = **Parça Sayısı** × Parça Başı Ağırlık</li>
+        <li>Ücretlendirilebilir ağırlık = max(gerçek ağırlık, hacimsel ağırlık)</li>
+        <li>Alış Tutarı = Ücretlendirilebilir ağırlık × Alış Fiyatı (kg)</li>
+        <li>Satış Tutarı = Ücretlendirilebilir ağırlık × Satış Fiyatı (kg)</li>
+        <li>Kar = Satış Tutarı - Alış Tutarı</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    let customers = [];
+    let globalCurrency = 'USD'; // Varsayılan para birimi
+    // Global ayarlar başlangıçta boş bırakılacak, kullanıcıdan bekleniyor
+    let globalPurchasePrice = 0;
+    let minProfitMargin = 0;
+    let maxDiscount = 0;
+    const MAX_HEIGHT_CM = 160; // Yeni kısıtlama: Maksimum yükseklik 160 cm
+
+    // Para birimi sembollerini tutan bir nesne
+    const currencySymbols = {
+        'USD': '$',
+        'EUR': '€',
+        'TRY': '₺',
+        'HKD': 'HK$',
+        'CNY': '¥'
+    };
+
+    function updateGlobalPurchasePriceLabel() {
+        const labelElement = document.getElementById('global-purchase-price-label');
+        // Sadece metni bırak, sembolü tamamen kaldır
+        labelElement.innerHTML = `Alış Fiyatı (kg)`;
+    }
+
+    function addCustomer() {
+      const customerId = Date.now();
+      const customer = {
+        id: customerId,
+        currency: globalCurrency,
+        // Yeni müşteriler için bu değerler global ayarlardan alınacak,
+        // ancak global ayarlar başlangıçta 0 olduğu için, kullanıcı "Uygula" demedikçe 0 ile başlayacak.
+        purchasePricePerKg: globalPurchasePrice,
+        salePricePerKg: calculateSuggestedPrice(globalPurchasePrice, minProfitMargin, maxDiscount), // minProfitMargin da eklendi
+        pieces: [],
+        totalWeight: 0,
+        volumetricWeight: 0,
+        chargeableWeight: 0,
+        purchasePrice: 0,
+        salePrice: 0,
+        profit: 0,
+        profitMargin: 0
+      };
+
+      addPieceToCustomer(customer);
+      customers.push(customer);
+      renderCustomers();
+      calculateTotals();
+      updateGlobalPurchasePriceLabel(); // Müşteri eklendiğinde etiketi güncelle
+    }
+
+    function addPieceToCustomer(customer) {
+      const pieceId = Date.now() + Math.random();
+      const piece = {
+        id: pieceId,
+        width: 0,
+        height: 0,
+        depth: 0,
+        weight: 0, // Bu 'Parça Başı Ağırlık' olacak
+        quantity: 1
+      };
+      customer.pieces.push(piece);
+      return piece;
+    }
+
+    function removePieceFromCustomer(customerId, pieceId) {
+      const customer = customers.find(c => c.id === customerId);
+      if (!customer) return;
+
+      customer.pieces = customer.pieces.filter(p => p.id !== pieceId);
+      // Eğer hiç parça kalmazsa, yeni bir boş parça ekle
+      if (customer.pieces.length === 0) {
+        addPieceToCustomer(customer);
+      }
+      calculateCustomer(customer);
+      renderCustomers();
+      calculateTotals();
+    }
+
+    function calculateSuggestedPrice(purchasePrice, minProfit, maxDisc) { // Parametre isimleri netleştirildi
+      // Global ayarlar 0 ise, hesaplama da 0 olmalı
+      if (purchasePrice === 0 || minProfit === 0) {
+          return 0;
+      }
+      const basePrice = purchasePrice * (1 + minProfit / 100);
+      const initialDiscount = maxDisc / 100 * 0.1; // Max İndirim yüzdesinin %10'u kadar bir indirim uygulandı
+      return basePrice * (1 - initialDiscount);
+    }
+
+    function applyGlobalSettings() {
+      // Global ayarlar input'larından değerleri al
+      globalPurchasePrice = parseFloat(document.getElementById('global-purchase-price').value) || 0;
+      minProfitMargin = parseFloat(document.getElementById('min-profit-margin').value) || 0;
+      maxDiscount = parseFloat(document.getElementById('max-discount').value) || 0;
+
+      customers.forEach(customer => {
+        customer.purchasePricePerKg = globalPurchasePrice;
+        // Global ayarlar güncellendiğinde müşteri satış fiyatını da güncelle
+        customer.salePricePerKg = calculateSuggestedPrice(globalPurchasePrice, minProfitMargin, maxDiscount); // güncellenmiş parametreler
+        calculateCustomer(customer);
+      });
+
+      renderCustomers();
+      calculateTotals();
+      updateGlobalPurchasePriceLabel(); // Ayarlar uygulandığında etiketi güncelle
+    }
+
+    function renderCustomers() {
+        const container = document.getElementById('customers-container');
+        container.innerHTML = '';
+
+        // Global ayarlar ve müşteri ekle butonundan sonraki tabindex
+        // global-purchase-price (1), min-profit-margin (2), max-discount (3), apply-settings-btn (4), add-customer-btn (5)
+        let currentTabIndex = 6;
+
+        customers.forEach((customer, index) => {
+            const customerDiv = document.createElement('div');
+            customerDiv.className = 'card';
+            customerDiv.style.marginTop = '15px'; /* Daha az margin-top */
+            customerDiv.id = `customer-${customer.id}`;
+
+            customerDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="margin: 0;">Müşteri ${index + 1}</h3>
+                <button class="btn btn-danger btn-sm" onclick="removeCustomer(${customer.id})" tabindex="-1">
+                    <i class="fas fa-trash"></i> Sil
+                </button>
+                </div>
+
+                <div class="flex-row">
+                <div class="input-group">
+                    <label><i class="fas fa-coins"></i> Para Birimi</label>
+                    <select onchange="updateCustomer(${customer.id}, 'currency', this.value)" tabindex="${currentTabIndex++}">
+                    <option value="USD" ${customer.currency === 'USD' ? 'selected' : ''}>USD</option>
+                    <option value="EUR" ${customer.currency === 'EUR' ? 'selected' : ''}>EUR</option>
+                    <option value="TRY" ${customer.currency === 'TRY' ? 'selected' : ''}>TRY</option>
+                    <option value="HKD" ${customer.currency === 'HKD' ? 'selected' : ''}>HKD</option>
+                    <option value="CNY" ${customer.currency === 'CNY' ? 'selected' : ''}>CNY</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Alış Fiyatı (kg)</label>
+                    <input type="number" step="0.01" value="${customer.purchasePricePerKg === 0 ? '' : customer.purchasePricePerKg.toFixed(2)}"
+                           onchange="updateCustomer(${customer.id}, 'purchasePricePerKg', this.value)"
+                           onclick="clearAndFocus(this)" tabindex="${currentTabIndex++}">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-shopping-cart"></i> Satış Fiyatı (kg)</label>
+                    <input type="number" step="0.01" value="${customer.salePricePerKg === 0 ? '' : customer.salePricePerKg.toFixed(2)}"
+                           onchange="updateCustomer(${customer.id}, 'salePricePerKg', this.value)"
+                           onclick="clearAndFocus(this)" tabindex="${currentTabIndex++}">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-chart-line"></i> Kar Marjı</label>
+                    <input type="text" value="${customer.profitMargin.toFixed(0)}%" readonly style="background: #e9ecef; cursor: default;" tabindex="-1">
+                </div>
+                </div>
+
+                <h4 style="margin-top: 15px;"><i class="fas fa-boxes"></i> Kargo Parçaları</h4>
+                <div id="pieces-container-${customer.id}">
+                ${customer.pieces.map((piece, pIndex) => {
+                    // Determine if this is the last piece and the last input field
+                    const isLastPiece = pIndex === customer.pieces.length - 1;
+                    const lastInputFieldTabindex = isLastPiece ? currentTabIndex + 4 : currentTabIndex + 4; // Weight input will be the 5th input
+
+                    return `
+                    <div class="piece-item">
+                      <button class="remove-piece" onclick="removePieceFromCustomer(${customer.id}, ${piece.id})" tabindex="-1">
+                        <i class="fas fa-times"></i>
+                      </button>
+                      <div class="flex-row">
+                        <div class="input-group">
+                          <label>Adet</label>
+                          <input type="number" step="1" min="1" value="${piece.quantity === 0 ? '' : piece.quantity}"
+                                 onchange="updatePiece(${customer.id}, ${piece.id}, 'quantity', this.value)"
+                                 onclick="clearAndFocus(this)" tabindex="${currentTabIndex++}">
+                        </div>
+                        <div class="input-group">
+                          <label>En (cm)</label>
+                          <input type="number" step="0.1" value="${piece.width === 0 ? '' : piece.width}"
+                                 onchange="updatePiece(${customer.id}, ${piece.id}, 'width', this.value)"
+                                 onclick="clearAndFocus(this)" tabindex="${currentTabIndex++}">
+                        </div>
+                        <div class="input-group">
+                          <label>Boy (cm)</label>
+                          <input type="number" step="0.1" value="${piece.height === 0 ? '' : piece.height}"
+                                 onchange="updatePiece(${customer.id}, ${piece.id}, 'height', this.value)"
+                                 onclick="clearAndFocus(this)" tabindex="${currentTabIndex++}">
+                        </div>
+                        <div class="input-group">
+                          <label>Yükseklik (cm)</label>
+                          <input type="number" step="0.1" value="${piece.depth === 0 ? '' : piece.depth}"
+                                 onchange="updatePiece(${customer.id}, ${piece.id}, 'depth', this.value)"
+                                 onclick="clearAndFocus(this)" tabindex="${currentTabIndex++}">
+                        </div>
+                        <div class="input-group">
+                          <label>Parça Başı Ağırlık (kg)</label>
+                          <input type="number" step="0.1" value="${piece.weight === 0 ? '' : piece.weight}"
+                                 onchange="updatePiece(${customer.id}, ${piece.id}, 'weight', this.value)"
+                                 onclick="clearAndFocus(this)"
+                                 onkeydown="handlePieceInputKeydown(event, ${customer.id}, ${piece.id}, ${isLastPiece})"
+                                 tabindex="${currentTabIndex++}">
+                        </div>
+                      </div>
+                    </div>
+                `;
+                }).join('')}
+                </div>
+
+                <button class="btn btn-sm btn-primary" id="add-piece-btn-${customer.id}" onclick="addNewPiece(${customer.id})" style="margin-top: 8px;" tabindex="${currentTabIndex++}">
+                <i class="fas fa-plus"></i> Parça Ekle
+                </button>
+
+                <table>
+                <thead>
+                  <tr>
+                    <th>Metrik</th>
+                    <th>Değer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Toplam Ağırlık</td>
+                    <td>${customer.totalWeight.toFixed(0)} kg</td>
+                  </tr>
+                  <tr>
+                    <td>Hacimsel Ağırlık</td>
+                    <td>${customer.volumetricWeight.toFixed(0)} kg</td>
+                  </tr>
+                  <tr>
+                    <td>Ücretlendirilebilir Ağırlık</td>
+                    <td>${customer.chargeableWeight.toFixed(0)} kg</td>
+                  </tr>
+                  <tr>
+                    <td>Alış Tutarı</td>
+                    <td>${formatCurrency(customer.purchasePrice, customer.currency)}</td>
+                  </tr>
+                  <tr>
+                    <td>Satış Tutarı</td>
+                    <td>${formatCurrency(customer.salePrice, customer.currency)}</td>
+                  </tr>
+                  <tr>
+                    <td>Kar</td>
+                    <td class="${customer.profit >= 0 ? 'profit' : 'loss'}">
+                      ${formatCurrency(customer.profit, customer.currency)} <small>(${customer.profitMargin.toFixed(0)}%)</small>
+                    </td>
+                  </tr>
+                </tbody>
+                </table>
+
+                ${customer.profitMargin < minProfitMargin && customer.chargeableWeight > 0 ? `
+                <div class="price-suggestion">
+                  <p><i class="fas fa-info-circle"></i> <strong>Fiyat Önerisi:</strong>
+                  Bu müşteri için kar marjınız %${minProfitMargin}'in altında.
+                  Satış fiyatını <strong>${formatPricePerKg(calculateMinPrice(customer.purchasePricePerKg), customer.currency)}/kg</strong>
+                  yaparak minimum kar marjını sağlayabilirsiniz.</p>
+                </div>
+                ` : ''}
+            `;
+
+            container.appendChild(customerDiv);
+        });
+    }
+
+    function handlePieceInputKeydown(event, customerId, pieceId, isLastPiece) {
+        if (event.key === 'Tab' && isLastPiece) {
+            // Prevent default tab behavior to avoid focusing on other elements outside the form
+            event.preventDefault();
+            // Programmatically click the "Parça Ekle" button for this customer
+            addNewPiece(customerId);
+            // After adding a new piece, focus on the first input of the newly added piece
+            setTimeout(() => {
+                const newPieceInput = document.querySelector(`#pieces-container-${customerId} .piece-item:last-child input[type="number"]`);
+                if (newPieceInput) {
+                    newPieceInput.focus();
+                }
+            }, 50); // Small delay to allow DOM to update
+        }
+    }
+
+
+    function calculateMinPrice(purchasePrice) {
+      if (purchasePrice === 0 || minProfitMargin === 0) {
+          return 0; // Eğer alış fiyatı veya min kar marjı 0 ise, minimum fiyat da 0 olsun
+      }
+      return purchasePrice * (1 + minProfitMargin/100);
+    }
+
+    function addNewPiece(customerId) {
+      const customer = customers.find(c => c.id === customerId);
+      if (!customer) return;
+
+      addPieceToCustomer(customer);
+      renderCustomers();
+      calculateCustomer(customer);
+      calculateTotals();
+    }
+
+    function removeCustomer(id) {
+      customers = customers.filter(c => c.id !== id);
+      renderCustomers();
+      calculateTotals();
+    }
+
+    function updateCustomer(id, field, value) {
+      const customer = customers.find(c => c.id === id);
+      if (!customer) return;
+
+      if (field === 'currency') {
+          customer[field] = value;
+          globalCurrency = value; // Global para birimini güncelle
+          updateGlobalPurchasePriceLabel(); // Para birimi değiştiğinde etiketi güncelle
+      } else {
+          customer[field] = parseFloat(value) || 0;
+      }
+      
+      // Eğer 'purchasePricePerKg' veya 'salePricePerKg' güncellenirse, 
+      // kar marjını yeniden hesapla
+      if (field === 'purchasePricePerKg' || field === 'salePricePerKg') {
+          customer.profitMargin = customer.purchasePricePerKg > 0 ?
+            ((customer.salePricePerKg - customer.purchasePricePerKg) / customer.purchasePricePerKg) * 100 : 0;
+      }
+      calculateCustomer(customer);
+      renderCustomers(); // Değerlerin güncellenmesi için tekrar render et
+      calculateTotals();
+    }
+
+    function updatePiece(customerId, pieceId, field, value) {
+      const customer = customers.find(c => c.id === customerId);
+      if (!customer) return;
+
+      const piece = customer.pieces.find(p => p.id === pieceId);
+      if (!piece) return;
+
+      piece[field] = parseFloat(value) || 0;
+      calculateCustomer(customer);
+      renderCustomers(); // Değerlerin güncellenmesi için tekrar render et
+      calculateTotals();
+    }
+
+    function calculateCustomer(customer) {
+      customer.totalWeight = 0;
+      customer.volumetricWeight = 0;
+
+      customer.pieces.forEach(piece => {
+        customer.totalWeight += piece.weight * piece.quantity;
+        customer.volumetricWeight += (piece.width * piece.height * piece.depth * piece.quantity) / 6000;
+      });
+
+      customer.chargeableWeight = Math.max(customer.totalWeight, customer.volumetricWeight);
+
+      customer.purchasePrice = customer.chargeableWeight * customer.purchasePricePerKg;
+      customer.salePrice = customer.chargeableWeight * customer.salePricePerKg;
+      customer.profit = customer.salePrice - customer.purchasePrice;
+      // Kar marjı sadece alış fiyatı > 0 ise hesaplanmalı
+      customer.profitMargin = customer.purchasePricePerKg > 0 ?
+        (customer.profit / customer.purchasePrice) * 100 : 0;
+    }
+
+    function calculateTotals() {
+      if (customers.length === 0) {
+        resetTotals();
+        return;
+      }
+
+      // Eğer müşteriler varsa, ilk müşterinin para birimini global para birimi olarak kullan
+      // Aksi takdirde, globalCurrency başlangıçtaki 'USD' kalır.
+      // Birden fazla müşteri farklı para birimine sahipse bu kısım değişebilir, 
+      // ancak şimdilik böyle bırakalım.
+      if (customers.length > 0) {
+        globalCurrency = customers[0].currency;
+        // updateGlobalPurchasePriceLabel(); // Para birimi değişse bile label artık sembol içermiyor
+      }
+
+      const totals = {
+        weight: 0,
+        volumetric: 0,
+        chargeable: 0,
+        purchase: 0,
+        sale: 0,
+        profit: 0
+      };
+
+      customers.forEach(customer => {
+        calculateCustomer(customer);
+
+        totals.weight += customer.totalWeight;
+        totals.volumetric += customer.volumetricWeight;
+        totals.chargeable += customer.chargeableWeight;
+        totals.purchase += customer.purchasePrice;
+        totals.sale += customer.salePrice;
+        totals.profit += customer.profit;
+      });
+
+      document.getElementById('total-weight').textContent = `${totals.weight.toFixed(0)} kg`;
+      document.getElementById('total-volumetric').textContent = `${totals.volumetric.toFixed(0)} kg`;
+      document.getElementById('total-chargeable').textContent = `${totals.chargeable.toFixed(0)} kg`;
+      document.getElementById('total-purchase').textContent = formatCurrency(totals.purchase, globalCurrency);
+      document.getElementById('total-sale').textContent = formatCurrency(totals.sale, globalCurrency);
+
+      const profitElement = document.getElementById('total-profit');
+      profitElement.textContent = formatCurrency(totals.profit, globalCurrency);
+      profitElement.className = totals.profit >= 0 ? 'summary-value profit' : 'summary-value loss';
+
+      calculateOptimization(totals.weight, totals.volumetric, totals.profit, totals.chargeable, totals.sale);
+    }
+
+    function calculateOptimization(totalWeight, totalVolumetric, totalProfit, totalChargeable, totalSale) {
+      const diff = totalWeight - totalVolumetric;
+      const optimizationElement = document.getElementById('optimization-result');
+
+      if (customers.length === 0) { // Sadece müşteri yoksa bu mesajı göster
+        optimizationElement.innerHTML = `
+          <h3><i class="fas fa-lightbulb"></i> Optimizasyon Önerisi</h3>
+          <p>Müşteri ekleyerek optimizasyon analizini görüntüleyin</p>
+        `;
+        return;
+      }
+      
+      // Eğer hiç kargo bilgisi girilmediyse de benzer bir mesaj gösterebiliriz
+      const allPiecesEmpty = customers.every(customer => customer.pieces.every(piece => piece.width === 0 && piece.height === 0 && piece.depth === 0 && piece.weight === 0 && piece.quantity === 0));
+
+      if (totalChargeable === 0 || allPiecesEmpty) {
+           optimizationElement.innerHTML = `
+          <h3><i class="fas fa-lightbulb"></i> Optimizasyon Önerisi</h3>
+          <p>Lütfen kargo parçası bilgisi giriniz.</p>
+        `;
+        return;
+      }
+
+
+      const currentAverageSalePrice = totalChargeable > 0 ? totalSale / totalChargeable : 0;
+      let lowestSalePriceSuggestion = 0;
+      // Sadece globalPurchasePrice 0'dan büyükse ve minProfitMargin 0'dan farklıysa hesaplama yap
+      if (globalPurchasePrice > 0 && minProfitMargin !== 0) {
+        const minAcceptablePrice = globalPurchasePrice * (1 + minProfitMargin / 100);
+        lowestSalePriceSuggestion = minAcceptablePrice * (1 - maxDiscount / 100);
+      }
+
+      if (diff > 0) { // Dense kargo fazla
+        const neededVolumetric = diff;
+        const currentVolumetricRatio = (totalVolumetric / totalWeight * 100).toFixed(0);
+
+        // Örnek boyutlar için varsayılan en ve boy değerleri
+        const defaultWidth = 100; // cm
+        const defaultLength = 60; // cm
+
+        // İhtiyaç duyulan hacimden yola çıkarak yükseklik hesapla
+        let calculatedHeight = (neededVolumetric * 6000) / (defaultWidth * defaultLength);
+
+        let displayHeight;
+        let heightWarning = '';
+
+        if (calculatedHeight > MAX_HEIGHT_CM) {
+            displayHeight = MAX_HEIGHT_CM;
+            heightWarning = `<p style="color: var(--danger); font-size: 0.75em; margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> Hesaplanan yükseklik (${calculatedHeight.toFixed(0)}cm) maksimum ${MAX_HEIGHT_CM}cm'yi aştığı için örnek ${MAX_HEIGHT_CM}cm olarak gösterilmiştir. Daha fazla volumetrik kargo için ${defaultWidth}cm x ${defaultLength}cm boyutlarında birden fazla koliye ihtiyacınız olabilir.</p>`;
+        } else {
+            displayHeight = calculatedHeight;
+            heightWarning = ''; // Uyarı yok
+        }
+
+        optimizationElement.innerHTML = `
+          <h3><i class="fas fa-lightbulb"></i> Optimizasyon Önerisi</h3>
+          <p><strong><i class="fas fa-arrow-down"></i> ${diff.toFixed(0)} kg</strong> daha fazla dense ağırlığınız var. Bu durum, volumetrik kapasitenizin tam kullanılmadığını gösterir. Mevcut hacimsel oranınız: %${currentVolumetricRatio}</p>
+          <p>Tam denge (%100 verimlilik) için <strong>${neededVolumetric.toFixed(0)} kg</strong> ek hacimsel kargo (daha hacimli ama hafif ürünler) ekleyerek verimliliği artırabilirsiniz.</p>
+
+          <div class="needed-cargo">
+            <p><i class="fas fa-box-open"></i> <strong>İhtiyaç Duyulan Volumetrik Kargo Örneği:</strong></p>
+            <ul>
+              <li>Toplam hacim ihtiyacı: <strong>${(neededVolumetric * 6000).toFixed(0)} cm³</strong></li>
+              <li>Örnek boyut: ${defaultWidth}cm (En) × ${defaultLength}cm (Boy) × <strong>${displayHeight.toFixed(0)}cm</strong> (Yükseklik) = ${neededVolumetric.toFixed(0)}kg hacimsel</li>
+            </ul>
+            ${heightWarning}
+          </div>
+
+          <div class="price-suggestion" style="margin-top: 10px;">
+            <p><i class="fas fa-tag"></i> <strong>Fiyatlandırma Stratejisi (Yeni Müşteri Kazanımı):</strong></p>
+            <ul>
+              <li>Mevcut ort. satış fiyatınız: <strong>${formatPricePerKg(currentAverageSalePrice, globalCurrency)}/kg</strong></li>
+              <li>Yeni müşteri için min. kar marjı (%${minProfitMargin}) ile max. %${maxDiscount} indirimle <strong>${formatPricePerKg(lowestSalePriceSuggestion, globalCurrency)}/kg</strong>'a kadar düşürülebilir.</li>
+              <li>Bu strateji, hacimsel kargo açığını kapatmada ve yeni müşteri çekmede etkilidir.</li>
+            </ul>
+          </div>
+        `;
+      } else if (diff < 0) { // Volumetrik kargo fazla
+        const neededDense = Math.abs(diff);
+        const currentDenseRatio = (totalWeight / totalVolumetric * 100).toFixed(0);
+
+        optimizationElement.innerHTML = `
+          <h3><i class="fas fa-lightbulb"></i> Optimizasyon Önerisi</h3>
+          <p><strong><i class="fas fa-arrow-up"></i> ${Math.abs(diff).toFixed(0)} kg</strong> daha fazla volumetrik ağırlığınız var. Bu durum, dense kapasitenizin tam kullanılmadığını gösterir. Mevcut dense oranınız: %${currentDenseRatio}</p>
+          <p>Tam denge (%100 verimlilik) için <strong>${neededDense.toFixed(0)} kg</strong> ek dense kargo (daha ağır ama az hacimli ürünler) ekleyerek verimliliği artırabilirsiniz.</p>
+
+          <div class="needed-cargo">
+            <p><i class="fas fa-weight-hanging"></i> <strong>İhtiyaç Duyulan Dense Kargo Örneği:</strong></p>
+            <ul>
+              <li>Toplam ağırlık ihtiyacı: <strong>${neededDense.toFixed(0)} kg</strong></li>
+              <li>Örnek: Demir, makine parçaları, kitaplar, konserve ürünler vb.</li>
+            </ul>
+          </div>
+
+          <div class="price-suggestion" style="margin-top: 10px;">
+            <p><i class="fas fa-tag"></i> <strong>Fiyatlandırma Stratejisi (Yeni Müşteri Kazanımı):</strong></p>
+            <ul>
+              <li>Mevcut ort. satış fiyatınız: <strong>${formatPricePerKg(currentAverageSalePrice, globalCurrency)}/kg</strong></li>
+              <li>Yeni müşteri için min. kar marjı (%${minProfitMargin}) ile max. %${maxDiscount} indirimle <strong>${formatPricePerKg(lowestSalePriceSuggestion, globalCurrency)}/kg</strong>'a kadar düşürülebilir.</li>
+              <li>Bu strateji, hacimsel kargo açığını kapatmada ve yeni müşteri çekmede etkilidir.</li>
+            </ul>
+          </div>
+        `;
+      } else { // Denge
+        optimizationElement.innerHTML = `
+          <h3><i class="fas fa-check-circle" style="color: var(--success);"></i> Mükemmel Denge!</h3>
+          <p>Dense ve volumetrik ağırlıklarınız tam olarak eşit. Ücretlendirilebilir ağırlık optimizasyonu maksimum seviyede.</p>
+
+          <div class="price-suggestion" style="margin-top: 10px;">
+            <p><i class="fas fa-tag"></i> <strong>Fiyatlandırma Stratejisi:</strong></p>
+            <ul>
+              <li>Mevcut fiyat politikasını koruyabilirsiniz, sisteminiz verimli çalışıyor.</li>
+              <li>Toplam kar: <strong>${formatCurrency(totalProfit, globalCurrency)}</strong></li>
+              <li>Ort. satış fiyatı: <strong>${formatPricePerKg(totalChargeable > 0 ? totalSale / totalChargeable : 0, globalCurrency)}/kg</strong></li>
+              <li>Yeni müşteri için min. kar marjı (%${minProfitMargin}) ile max. %${maxDiscount} indirimle <strong>${formatPricePerKg(lowestSalePriceSuggestion, globalCurrency)}/kg</strong>'a kadar düşürülebilir.</li>
+            </ul>
+          </div>
+        `;
+      }
+    }
+
+    function resetTotals() {
+      document.getElementById('total-weight').textContent = '0 kg';
+      document.getElementById('total-volumetric').textContent = '0 kg';
+      document.getElementById('total-chargeable').textContent = '0 kg';
+      document.getElementById('total-purchase').textContent = formatCurrency(0, globalCurrency);
+      document.getElementById('total-sale').textContent = formatCurrency(0, globalCurrency);
+      document.getElementById('total-profit').textContent = formatCurrency(0, globalCurrency);
+      document.getElementById('total-profit').className = 'summary-value';
+      document.getElementById('optimization-result').innerHTML = `
+        <h3><i class="fas fa-lightbulb"></i> Optimizasyon Önerisi</h3>
+        <p>Müşteri ekleyerek optimizasyon analizini görüntüleyin</p>
+      `;
+    }
+
+    function formatCurrency(value, currency) {
+      if (isNaN(value) || value === null) value = 0;
+
+      const options = {
+        style: 'currency',
+        currency: currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      };
+
+      return new Intl.NumberFormat('tr-TR', options).format(value);
+    }
+
+    // Yeni fonksiyon: kilogram başına fiyat formatlama
+    function formatPricePerKg(value, currency) {
+      if (isNaN(value) || value === null) value = 0;
+
+      const options = {
+        style: 'currency',
+        currency: currency,
+        minimumFractionDigits: 2, // Her zaman iki ondalık basamak göster
+        maximumFractionDigits: 2  // Her zaman iki ondalık basamak göster
+      };
+
+      return new Intl.NumberFormat('tr-TR', options).format(value);
+    }
+
+    function clearAndFocus(element) {
+        // Eğer değer "0", "0.0", "0.00" veya "" ise input'u boşalt ve odaklan
+        if (element.value === "0" || element.value === "0.0" || element.value === "0.00" || element.value === "") {
+            element.value = "";
+        }
+        element.focus();
+    }
+
+    window.onload = function() {
+      // Global ayarlar input'larını başlangıçta boş bırak
+      document.getElementById('global-purchase-price').value = '';
+      document.getElementById('min-profit-margin').value = '';
+      document.getElementById('max-discount').value = '';
+
+      // Butonların etkinlik dinleyicilerini düzgünce bağla
+      document.getElementById('add-customer-btn').addEventListener('click', addCustomer);
+      document.getElementById('apply-settings-btn').addEventListener('click', applyGlobalSettings);
+
+      // Başlangıçta hiçbir müşteri olmadığı için konsolide özeti sıfırla
+      resetTotals();
+      updateGlobalPurchasePriceLabel(); // Sayfa yüklendiğinde etiketi ayarla
+    };
+  </script>
+</body>
+</html>
